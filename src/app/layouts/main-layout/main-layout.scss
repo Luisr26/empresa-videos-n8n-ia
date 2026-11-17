@@ -1,0 +1,178 @@
+.app-layout {
+  min-height: 100vh;
+  background: #090d12;
+}
+
+.minimal-sider {
+  background: #0d1117 !important;
+  border-right: 1px solid #1f242c;
+}
+
+.brand {
+  height: 68px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #1f242c;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &.collapsed {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .brand-icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 17px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+  }
+
+  .brand-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+
+    .brand-title {
+      color: #f3f4f6;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      color: #6b7280;
+      font-size: 11px;
+    }
+  }
+}
+
+.menu-wrapper {
+  padding: 14px 10px;
+}
+
+.minimal-menu {
+  background: transparent !important;
+  border-right: none;
+
+  ::ng-deep .ant-menu-item {
+    border-radius: 8px;
+    margin-bottom: 6px;
+    height: 42px;
+    line-height: 42px;
+    color: #9ca3af;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #f3f4f6;
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    &.ant-menu-item-selected {
+      background: rgba(59, 130, 246, 0.14) !important;
+      color: #60a5fa !important;
+      font-weight: 500;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+}
+
+.main-container {
+  background: #090d12;
+}
+
+.minimal-header {
+  height: 68px;
+  line-height: normal;
+  background: #0d1117;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1f242c;
+
+  .trigger-btn {
+    background: transparent;
+    border: 1px solid #1f242c;
+    color: #9ca3af;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #f3f4f6;
+      border-color: #374151;
+      background: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .server-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    line-height: 1;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: #131820;
+    border: 1px solid #262c36;
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 500;
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    nz-icon {
+      color: #64748b;
+      font-size: 13px;
+    }
+  }
+}
+
+.minimal-content {
+  margin: 16px;
+}
+
+.content-surface {
+  padding: 0;
+  background: transparent;
+  border: none;
+  min-height: calc(100vh - 148px);
+}
+
+.minimal-footer {
+  background: transparent;
+  color: #4b5563;
+  text-align: center;
+  font-size: 12px;
+  padding: 12px 24px 20px;
+}

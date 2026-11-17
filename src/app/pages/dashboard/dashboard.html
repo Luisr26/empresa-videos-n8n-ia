@@ -1,0 +1,68 @@
+<div class="dashboard-header">
+  <div>
+    <h2>Panel de Control</h2>
+    <p>Resumen de rendimiento y producción de guiones con LM Studio</p>
+  </div>
+  <button nz-button nzType="primary" routerLink="/generador">
+    <nz-icon nzType="plus" /> Nuevo Guion Viral
+  </button>
+</div>
+
+<!-- Tarjetas de métricas -->
+<div nz-row [nzGutter]="[16, 16]" class="stats-row">
+  <div nz-col [nzXs]="24" [nzSm]="8">
+    <nz-card class="dark-card">
+      <nz-statistic
+        [nzValue]="totalAprobados()"
+        nzTitle="Guiones Aprobados"
+        [nzPrefix]="iconoCheck"
+      />
+      <ng-template #iconoCheck><nz-icon nzType="check-circle" class="icon-blue" /></ng-template>
+    </nz-card>
+  </div>
+
+  <div nz-col [nzXs]="24" [nzSm]="8">
+    <nz-card class="dark-card">
+      <nz-statistic
+        [nzValue]="promedioViral()"
+        nzTitle="Promedio Probabilidad Viral"
+        nzSuffix="%"
+        [nzPrefix]="iconoFire"
+      />
+      <ng-template #iconoFire><nz-icon nzType="fire" class="icon-orange" /></ng-template>
+    </nz-card>
+  </div>
+
+  <div nz-col [nzXs]="24" [nzSm]="8">
+    <nz-card class="dark-card">
+      <nz-statistic
+        [nzValue]="mejorPuntaje()"
+        nzTitle="Mejor Puntaje Alcanzado"
+        nzSuffix="%"
+        [nzPrefix]="iconoTrophy"
+      />
+      <ng-template #iconoTrophy><nz-icon nzType="trophy" class="icon-green" /></ng-template>
+    </nz-card>
+  </div>
+</div>
+
+<!-- Actividad reciente -->
+<nz-card nzTitle="Últimos Guiones Aprobados" class="dark-card recent-card">
+  @if (ultimosGuiones().length > 0) {
+    <div class="lista-recientes">
+      @for (item of ultimosGuiones(); track item.id) {
+        <div class="item-reciente">
+          <div class="info">
+            <span class="titulo">{{ item.tema }}</span>
+            <span class="fecha">{{ item.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <nz-tag [nzColor]="item.probabilidadViral >= 80 ? 'green' : 'gold'">
+            {{ item.probabilidadViral }}% Viral
+          </nz-tag>
+        </div>
+      }
+    </div>
+  } @else {
+    <nz-empty nzNotFoundContent="Aún no tienes guiones aprobados. Genera el primero con IA." />
+  }
+</nz-card>

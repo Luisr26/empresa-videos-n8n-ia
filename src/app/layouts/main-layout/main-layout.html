@@ -1,0 +1,77 @@
+<nz-layout class="app-layout">
+  <nz-sider
+    class="minimal-sider"
+    nzCollapsible
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="null"
+    nzWidth="240px"
+  >
+    <div class="brand" [class.collapsed]="isCollapsed()">
+      <div class="brand-icon-wrap">
+        <nz-icon nzType="video-camera" />
+      </div>
+      @if (!isCollapsed()) {
+        <div class="brand-info">
+          <span class="brand-title">Studio Videos IA</span>
+          <span class="brand-sub">Content Engine</span>
+        </div>
+      }
+    </div>
+
+    <div class="menu-wrapper">
+      <ul nz-menu nzTheme="dark" nzMode="inline" class="minimal-menu">
+        <li nz-menu-item nzMatchRouter>
+          <a routerLink="/dashboard">
+            <nz-icon nzType="dashboard" />
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        <li nz-menu-item nzMatchRouter>
+          <a routerLink="/generador">
+            <nz-icon nzType="bulb" />
+            <span>Generador de Guiones</span>
+          </a>
+        </li>
+
+        <li nz-menu-item nzMatchRouter>
+          <a routerLink="/aprobados">
+            <nz-icon nzType="table" />
+            <span>Guiones Aprobados</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nz-sider>
+
+  <nz-layout class="main-container">
+    <nz-header class="minimal-header">
+      <button
+        type="button"
+        class="trigger-btn"
+        (click)="isCollapsed.set(!isCollapsed())"
+        aria-label="Alternar menú"
+      >
+        <nz-icon [nzType]="isCollapsed() ? 'menu-unfold' : 'menu-fold'" />
+      </button>
+
+      <div class="header-right">
+        <div class="server-pill">
+          <span class="status-dot"></span>
+          <nz-icon nzType="api" />
+          <span>LM Studio · localhost:1234</span>
+        </div>
+      </div>
+    </nz-header>
+
+    <nz-content class="minimal-content">
+      <div class="content-surface">
+        <router-outlet />
+      </div>
+    </nz-content>
+
+    <nz-footer class="minimal-footer">
+      Studio Videos IA ©{{ date.getFullYear() }}
+    </nz-footer>
+  </nz-layout>
+</nz-layout>

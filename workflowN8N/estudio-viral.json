@@ -1,0 +1,139 @@
+{
+  "name": "Estudio Viral - Búsqueda Web 2026",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "estudio-viral",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-1111-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "webhookId": "estudio-viral-hook"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.body?.tema || $json.tema }} 2026"
+            },
+            {
+              "name": "hl",
+              "value": "es-419"
+            },
+            {
+              "name": "gl",
+              "value": "CO"
+            },
+            {
+              "name": "ceid",
+              "value": "CO:es-419"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-2222-4000-8000-000000000002",
+      "name": "Búsqueda Web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nlet xml = '';\n\n// 1. Buscar XML en json (string directo o cualquier propiedad)\nif (typeof item.json === 'string') {\n  xml = item.json;\n} else if (item.json) {\n  for (const val of Object.values(item.json)) {\n    if (typeof val === 'string' && val.includes('<rss')) {\n      xml = val;\n      break;\n    }\n  }\n}\n\n// 2. Respaldo: buscar en binary si n8n v2 lo guardó como archivo\nif (!xml && item.binary) {\n  const binKey = Object.keys(item.binary)[0];\n  if (binKey && item.binary[binKey]?.data) {\n    xml = Buffer.from(item.binary[binKey].data, 'base64').toString('utf8');\n  }\n}\n\nconst items = [...xml.matchAll(/<item>[\\s\\S]*?<title>([\\s\\S]*?)<\\/title>[\\s\\S]*?<pubDate>([\\s\\S]*?)<\\/pubDate>/g)]\n  .map(m => ({\n    titulo: m[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').trim(),\n    fecha: m[2].trim(),\n    timestamp: new Date(m[2].trim()).getTime() || 0\n  }))\n  .sort((a, b) => b.timestamp - a.timestamp)\n  .slice(0, 6)\n  .map(({ titulo, fecha }) => ({ titulo, fecha }));\n\nlet temaBuscado = '';\ntry {\n  temaBuscado = $('Webhook').first().json.body?.tema || '';\n} catch {\n  temaBuscado = '';\n}\n\nreturn [{\n  json: {\n    tema: temaBuscado,\n    resumenPrincipal: items.length > 0\n      ? items.map(i => `• ${i.titulo} (${i.fecha})`).join('\\n')\n      : 'Sin titulares recientes encontrados para este tema.',\n    resultadosRelacionados: items,\n    fuente: 'Google News RSS 2026'\n  }\n}];"
+      },
+      "id": "a1b2c3d4-3333-4000-8000-000000000003",
+      "name": "Procesar Noticias",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "a1b2c3d4-4444-4000-8000-000000000004",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        940,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Búsqueda Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Búsqueda Web": {
+      "main": [
+        [
+          {
+            "node": "Procesar Noticias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Noticias": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

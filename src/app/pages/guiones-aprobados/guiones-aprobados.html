@@ -1,0 +1,89 @@
+<div class="aprobados-layout">
+  <header class="aprobados-header">
+    <div>
+      <h1>Guiones Aprobados & Producción</h1>
+      <p>Confirma tus guiones listos para disparar la generación automática de video en n8n</p>
+    </div>
+    <span class="contador-badge">
+      {{ guionesService.guionesAprobados().length }} listos
+    </span>
+  </header>
+
+  @if (guionesService.guionesAprobados().length === 0) {
+    <div class="empty-state">
+      <nz-icon nzType="video-camera" />
+      <h3>Aún no hay guiones aprobados</h3>
+      <p>Aprueba un guion desde el Generador para enviarlo a producción.</p>
+    </div>
+  } @else {
+    <div class="cards-grid">
+      @for (item of guionesService.guionesAprobados(); track item.id) {
+        <article
+          class="guion-card"
+          [class.selected]="guionSeleccionado()?.id === item.id"
+          (click)="seleccionarGuion(item)"
+        >
+          <div class="card-top">
+            <span class="score-pill">Viral Score: {{ item.probabilidadViral }}%</span>
+            <span class="fecha-txt">{{ item.fecha | date: 'dd MMM, HH:mm' }}</span>
+          </div>
+
+          <h3 class="card-titulo">{{ item.tema }}</h3>
+
+          <pre class="card-preview">{{ item.guionFormateado || item.guion }}</pre>
+
+          <div class="card-footer">
+            <div class="video-action-box" (click)="$event.stopPropagation()">
+              @if (item.estadoVideo === 'listo' && item.videoUrl) {
+                <a [href]="item.videoUrl" target="_blank" class="btn-video-ready">
+                  <nz-icon nzType="play-circle" />
+                  <span>Ver / Descargar MP4</span>
+                </a>
+              } @else {
+                <button
+                  type="button"
+                  class="btn-confirm-video"
+                  nz-popconfirm
+                  nzPopconfirmTitle="¿Confirmar este guion para producir el video en n8n?"
+                  nzOkText="Sí, generar video"
+                  nzCancelText="Cancelar"
+                  [disabled]="item.estadoVideo === 'generando'"
+                  (nzOnConfirm)="confirmarYGenerarVideo(item)"
+                >
+                  <nz-icon [nzType]="item.estadoVideo === 'generando' ? 'loading' : 'video-camera'" />
+                  <span>
+                    {{ item.estadoVideo === 'generando' ? 'Renderizando video...' : 'Confirmar y Generar Video' }}
+                  </span>
+                </button>
+              }
+            </div>
+
+            <div class="secondary-actions" (click)="$event.stopPropagation()">
+              <button
+                type="button"
+                class="btn-icon"
+                title="Copiar guion"
+                (click)="copiarGuion(item.guionFormateado || item.guion, $event)"
+              >
+                <nz-icon nzType="copy" />
+              </button>
+              <button
+                type="button"
+                class="btn-icon danger"
+                title="Eliminar"
+                nz-popconfirm
+                nzPopconfirmTitle="¿Seguro que deseas eliminar este guion aprobado? Esta acción no se puede deshacer."
+                nzOkText="Sí, eliminar"
+                nzCancelText="Cancelar"
+                nzOkType="danger"
+                (nzOnConfirm)="eliminarAprobado(item.id)"
+              >
+                <nz-icon nzType="delete" />
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

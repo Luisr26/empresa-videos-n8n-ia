@@ -1,0 +1,370 @@
+<div class="studio-layout">
+  <!-- COLUMNA 1: HISTORIAL DE SESIONES -->
+  <aside class="history-sidebar">
+    <div class="sidebar-top">
+      <button type="button" class="btn-new-session" (click)="nuevaSesion()">
+        <nz-icon nzType="plus" />
+        <span>Nuevo Guion</span>
+      </button>
+    </div>
+
+    <div class="sessions-scroll">
+      @for (sesion of guionesService.historialSesiones(); track sesion.id) {
+        <div
+          class="session-card"
+          [class.active]="sesionIdActiva() === sesion.id"
+          (click)="seleccionarSesion(sesion)"
+        >
+          <div class="session-meta-wrap">
+            <span class="session-title">{{ sesion.tema }}</span>
+            <span class="session-sub">
+              {{ sesion.probabilidadViral }}% viral · {{ sesion.fecha | date: 'dd MMM' }}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="btn-delete-session"
+            title="Eliminar sesión"
+            nz-popconfirm
+            nzPopconfirmTitle="¿Seguro que deseas borrar esta sesión del historial?"
+            nzOkText="Sí, borrar"
+            nzCancelText="Cancelar"
+            nzOkType="danger"
+            (nzOnConfirm)="eliminarSesion(sesion.id)"
+            (click)="$event.stopPropagation()"
+          >
+            <nz-icon nzType="delete" />
+          </button>
+        </div>
+      } @empty {
+        <div class="empty-history">
+          <nz-icon nzType="history" />
+          <p>Sin historial reciente</p>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- COLUMNA 2: CHAT & CREACIÓN DE GUIONES DE 30S -->
+  <main class="chat-workspace">
+    <div class="messages-feed">
+      @if (!sesionActiva(); as sesion) {
+        <div class="welcome-empty">
+          <div class="glow-badge">
+            <nz-icon nzType="thunderbolt" />
+            <span>30s Dopamine Engine · Tiempo Real</span>
+          </div>
+          <h2>Crea un guion viral de alta retención</h2>
+          <p>
+            Conectado a Google News RSS y Qwen 3.5 para redactar guiones explosivos de 30 segundos
+            con gancho inmediato y cierre en loop.
+          </p>
+
+          <div class="starter-chips">
+            <button
+              type="button"
+              class="chip-btn"
+              (click)="mensajeInput.set('3 errores silenciosos al escalar una arquitectura multi-tenant en PostgreSQL')"
+            >
+              3 errores silenciosos en PostgreSQL multi-tenant
+            </button>
+            <button
+              type="button"
+              class="chip-btn"
+              (click)="mensajeInput.set('Cómo estructurar un backend con agentes IA sin disparar los costos de tokens')"
+            >
+              Agentes IA en backend sin disparar costos
+            </button>
+          </div>
+        </div>
+      } @else {
+        @for (msg of sesionActiva()!.mensajes; track $index) {
+          <div
+            class="msg-row"
+            [class.user]="msg.rol === 'user'"
+            [class.assistant]="msg.rol === 'assistant'"
+          >
+            <div class="msg-bubble">
+              <div class="msg-topbar">
+                <span class="msg-author">
+                  {{ msg.rol === 'user' ? 'Tú' : 'Guionista IA · 30s' }}
+                </span>
+                @if (msg.esGuion) {
+                  <button
+                    type="button"
+                    class="btn-copy-msg"
+                    (click)="copiarTexto(msg.contenido)"
+                  >
+                    <nz-icon nzType="copy" />
+                    <span>Copiar</span>
+                  </button>
+                }
+              </div>
+
+              <pre class="msg-text">{{ msg.contenido }}</pre>
+            </div>
+          </div>
+        }
+
+        <!-- BARRA RÁPIDA DE ITERACIÓN / MEJORA -->
+        @if (!cargandoChat() && sesionActiva()?.guion) {
+          <div class="refine-box">
+            <input
+              type="text"
+              placeholder="Ej: Haz el gancho de los primeros 3 segundos más agresivo..."
+              [ngModel]="instruccionMejora()"
+              (ngModelChange)="instruccionMejora.set($event)"
+              (keyup.enter)="instruccionMejora().trim() && enviarMensaje('Mejora el guion aplicando esto: ' + instruccionMejora())"
+            />
+            <button
+              type="button"
+              [disabled]="!instruccionMejora().trim()"
+              (click)="enviarMensaje('Mejora el guion aplicando esto: ' + instruccionMejora())"
+            >
+              <nz-icon nzType="edit" />
+              <span>Pulir guion</span>
+            </button>
+          </div>
+        }
+      }
+
+      @if (cargandoChat()) {
+        <div class="loading-pill">
+          <nz-spin nzSimple nzSize="small" />
+          <span>Consultando noticias en vivo y redactando guion de 30s...</span>
+        </div>
+      }
+    </div>
+
+    <form class="composer-bar" (ngSubmit)="enviarMensaje()">
+      <input
+        type="text"
+        name="mensajeInput"
+        placeholder="Escribe un tema o noticia actual para generar el guion..."
+        [ngModel]="mensajeInput()"
+        (ngModelChange)="mensajeInput.set($event)"
+        [disabled]="cargandoChat()"
+      />
+      <button
+        type="submit"
+        class="btn-send"
+        [disabled]="cargandoChat() || !mensajeInput().trim()"
+      >
+        <nz-icon nzType="send" />
+        <span>Generar</span>
+      </button>
+    </form>
+  </main>
+
+  <!-- COLUMNA 3: ANALÍTICA VIRAL, MERCADO WEB Y DECISIONES -->
+  <aside class="analytics-sidebar">
+    <div class="analytics-header">
+      <div class="segmented-control">
+        <button
+          type="button"
+          [class.active]="tabAnalitica() === 'kpis'"
+          (click)="tabAnalitica.set('kpis')"
+        >
+          KPIs Guion
+        </button>
+        <button
+          type="button"
+          [class.active]="tabAnalitica() === 'mercado'"
+          (click)="tabAnalitica.set('mercado')"
+        >
+          Mercado Web
+          @if (sesionActiva()?.estudioWeb) {
+            <span class="dot-ready"></span>
+          }
+        </button>
+      </div>
+
+      @if (sesionActiva()) {
+        <button
+          type="button"
+          class="btn-study-top"
+          [disabled]="cargandoEstudio()"
+          (click)="ejecutarEstudioInternet()"
+        >
+          <nz-icon nzType="global" [nzSpin]="cargandoEstudio()" />
+          <span>{{ cargandoEstudio() ? 'Analizando' : 'Estudiar' }}</span>
+        </button>
+      }
+    </div>
+
+    @if (sesionActiva(); as sesion) {
+      <div class="analytics-body">
+        @if (tabAnalitica() === 'kpis') {
+          <!-- TARJETA HERO DE PROBABILIDAD VIRAL -->
+          <div class="hero-viral-card">
+            <nz-progress
+              [nzPercent]="sesion.probabilidadViral"
+              nzType="circle"
+              [nzStrokeColor]="colorProbabilidad(sesion.probabilidadViral)"
+              [nzWidth]="108"
+            ></nz-progress>
+
+            <div class="hero-viral-info">
+              <span class="eyebrow">PROBABILIDAD VIRAL</span>
+              <h4>
+                {{
+                  sesion.probabilidadViral >= 75
+                    ? 'Alto Potencial'
+                    : sesion.probabilidadViral >= 50
+                      ? 'Potencial Medio'
+                      : 'Requiere Ajuste'
+                }}
+              </h4>
+              @if (sesion.justificacionScore) {
+                <p>{{ sesion.justificacionScore }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- DESGLOSE DE MÉTRICAS -->
+          <div class="factors-card">
+            <div class="factor-item">
+              <div class="factor-label">
+                <span>Gancho (0-3s)</span>
+                <strong>{{ sesion.factoresVirales.gancho }}%</strong>
+              </div>
+              <nz-progress
+                [nzPercent]="sesion.factoresVirales.gancho"
+                [nzShowInfo]="false"
+                [nzStrokeColor]="colorProbabilidad(sesion.factoresVirales.gancho)"
+                [nzStrokeWidth]="6"
+              ></nz-progress>
+            </div>
+
+            <div class="factor-item">
+              <div class="factor-label">
+                <span>Retención & Loop</span>
+                <strong>{{ sesion.factoresVirales.retencion }}%</strong>
+              </div>
+              <nz-progress
+                [nzPercent]="sesion.factoresVirales.retencion"
+                [nzShowInfo]="false"
+                [nzStrokeColor]="colorProbabilidad(sesion.factoresVirales.retencion)"
+                [nzStrokeWidth]="6"
+              ></nz-progress>
+            </div>
+
+            <div class="factor-item">
+              <div class="factor-label">
+                <span>Impacto Emocional</span>
+                <strong>{{ sesion.factoresVirales.emocion }}%</strong>
+              </div>
+              <nz-progress
+                [nzPercent]="sesion.factoresVirales.emocion"
+                [nzShowInfo]="false"
+                [nzStrokeColor]="colorProbabilidad(sesion.factoresVirales.emocion)"
+                [nzStrokeWidth]="6"
+              ></nz-progress>
+            </div>
+
+            <div class="factor-item">
+              <div class="factor-label">
+                <span>Llamado a la Acción</span>
+                <strong>{{ sesion.factoresVirales.llamadoAccion }}%</strong>
+              </div>
+              <nz-progress
+                [nzPercent]="sesion.factoresVirales.llamadoAccion"
+                [nzShowInfo]="false"
+                [nzStrokeColor]="colorProbabilidad(sesion.factoresVirales.llamadoAccion)"
+                [nzStrokeWidth]="6"
+              ></nz-progress>
+            </div>
+          </div>
+        }
+
+        @if (tabAnalitica() === 'mercado') {
+          @if (sesion.estudioWeb; as estudio) {
+            <div class="market-panel">
+              <div class="market-kpi-row">
+                <span class="trend-badge">{{ estudio.nivelTendencia }}</span>
+                <span class="volume-text">{{ estudio.volumenBusquedaEstimado }}</span>
+              </div>
+
+              <div class="verdict-box">
+                <span class="eyebrow">VEREDICTO DE MERCADO</span>
+                <p>{{ estudio.veredictoMercado }}</p>
+              </div>
+
+              <div class="keywords-section">
+                <span class="eyebrow">PALABRAS CLAVE DETECTADAS</span>
+                <div class="keywords-list">
+                  @for (kw of estudio.palabrasClaveRelacionadas; track kw) {
+                    <span class="kw-tag">#{{ kw }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="sources-section">
+                <span class="eyebrow">FUENTES Y TITULARES REALES</span>
+                @for (fuente of estudio.fuentesDetectadas; track fuente.titulo) {
+                  <div class="source-card">
+                    <strong>{{ fuente.titulo }}</strong>
+                    <p>{{ fuente.resumen }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="empty-market">
+              <nz-icon nzType="radar-chart" />
+              <h4>Sin estudio de mercado aún</h4>
+              <p>Consulta noticias en vivo y demanda de búsqueda antes de producir este video.</p>
+              <button
+                type="button"
+                class="btn-study-cta"
+                [disabled]="cargandoEstudio()"
+                (click)="ejecutarEstudioInternet()"
+              >
+                <nz-icon nzType="global" [nzSpin]="cargandoEstudio()" />
+                <span>Ejecutar Estudio Web</span>
+              </button>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- ACCIONES DE APROBACIÓN / DESCARTE CON CONFIRMACIÓN -->
+      <div class="analytics-footer">
+        <button
+          type="button"
+          class="btn-approve-main"
+          nz-popconfirm
+          nzPopconfirmTitle="¿Confirmas aprobar este guion y enviarlo a producción?"
+          nzOkText="Sí, aprobar"
+          nzCancelText="Cancelar"
+          [disabled]="aprobando() || cargandoChat() || !sesion.guion"
+          (nzOnConfirm)="aprobarGuionActual()"
+        >
+          <nz-icon [nzType]="aprobando() ? 'loading' : 'check-circle'" />
+          <span>{{ aprobando() ? 'Formateando y aprobando...' : 'Aprobar Guion' }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn-discard-main"
+          nz-popconfirm
+          nzPopconfirmTitle="¿Seguro que deseas descartar y borrar este borrador? No se puede deshacer."
+          nzOkText="Sí, descartar"
+          nzCancelText="Cancelar"
+          nzOkType="danger"
+          [disabled]="cargandoChat()"
+          (nzOnConfirm)="descartarGuionActual()"
+        >
+          <nz-icon nzType="delete" />
+          <span>Descartar</span>
+        </button>
+      </div>
+    } @else {
+      <div class="analytics-placeholder">
+        <nz-icon nzType="bar-chart" />
+        <p>Genera un guion en el panel central para analizar su retención viral y demanda web.</p>
+      </div>
+    }
+  </aside>
+</div>

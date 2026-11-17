@@ -1,0 +1,78 @@
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h2 {
+    color: #f0f6fc;
+    margin: 0 0 4px 0;
+    font-size: 22px;
+  }
+
+  p {
+    color: #8b949e;
+    margin: 0;
+  }
+}
+
+.stats-row {
+  margin-bottom: 20px;
+}
+
+.dark-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+
+  ::ng-deep .ant-card-head {
+    border-bottom: 1px solid #30363d;
+    color: #f0f6fc;
+  }
+
+  ::ng-deep .ant-statistic-title {
+    color: #8b949e;
+  }
+
+  ::ng-deep .ant-statistic-content {
+    color: #f0f6fc;
+  }
+}
+
+.icon-blue { color: #388bfd; }
+.icon-orange { color: #f0883e; }
+.icon-green { color: #3fb950; }
+
+.lista-recientes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-reciente {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .titulo {
+      color: #e6edf3;
+      font-weight: 500;
+    }
+
+    .fecha {
+      color: #8b949e;
+      font-size: 12px;
+    }
+  }
+}
